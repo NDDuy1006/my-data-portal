@@ -1,0 +1,73 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  firstname       String
+  lastname        String
+  phone           String
+  email           String    @unique
+  password        String
+  userType        UserType
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  Home            Home[]
+  buyerMessages   Message[] @relation("buyerMessage")
+  realtorMessages Message[] @relation("realtorMessage")
+}
+
+model Home {
+  id                Int          @id @default(autoincrement())
+  address           String
+  numberOfBedrooms  Int
+  numberOfBathrooms Int
+  city              String
+  listedDate        DateTime     @default(now())
+  price             Float
+  landSize          Float
+  propertyType      PropertyType
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  Image             Image[]
+  realtorId         Int
+  realtor           User         @relation(fields: [realtorId], references: [id])
+  message           Message[]
+}
+
+model Image {
+  id     Int    @id @default(autoincrement())
+  url    String
+  homeId Int
+  home   Home   @relation(fields: [homeId], references: [id])
+}
+
+model Message {
+  id        Int    @id @default(autoincrement())
+  message   String
+  homeId    Int
+  home      Home   @relation(fields: [homeId], references: [id])
+  realtorId Int
+  realtor   User   @relation("buyerMessage", fields: [realtorId], references: [id])
+  buyerId   Int
+  buyer     User   @relation("realtorMessage", fields: [buyerId], references: [id])
+}
+
+enum UserType {
+  BUYER
+  REALTOR
+  ADMIN
+}
+
+enum PropertyType {
+  RESIDENTIAL
+  CONDO
+}
