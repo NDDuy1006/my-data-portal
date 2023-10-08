@@ -111,15 +111,11 @@ export class HomeService {
     return home;
   }
 
-  async updateSingleById(
-    realtorId: number,
-    id: number,
-    payload: HomeUpdatePayload,
-  ) {
+  async updateSingleById(realtor: any, id: number, payload: HomeUpdatePayload) {
     const home = await this.prismaService.home.findUnique({
       where: {
-        id,
-        realtorId,
+        id: id,
+        realtorId: realtor.id,
       },
     });
 

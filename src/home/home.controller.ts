@@ -8,6 +8,7 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { HomeService } from './home.service';
 import { HomeResponseDto } from './dto/HomeResponseDto';
@@ -15,8 +16,10 @@ import { PropertyType } from '@prisma/client';
 import { HomeCreatePayload } from './payloads/HomeCreatePayload';
 import { HomeUpdatePayload } from './payloads/HomeUpdatePayload';
 import { GetUser } from '../user/auth/decorators/GetUser';
+import { CustomJwtGuard } from '../user/auth/guards/CustomJwtGuard';
 
 @Controller('homes')
+@UseGuards(CustomJwtGuard)
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}
   @Get()
