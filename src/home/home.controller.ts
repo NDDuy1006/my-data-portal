@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
@@ -11,6 +12,9 @@ import {
 import { HomeService } from './home.service';
 import { HomeResponseDto } from './dto/HomeResponseDto';
 import { PropertyType } from '@prisma/client';
+import { HomeCreatePayload } from './payloads/HomeCreatePayload';
+import { HomeUpdatePayload } from './payloads/HomeUpdatePayload';
+import { GetUser } from '../user/auth/decorators/GetUser';
 
 @Controller('homes')
 export class HomeController {
@@ -35,19 +39,27 @@ export class HomeController {
       ...(price && { price }),
       ...(propertyType && { propertyType }),
     };
-    return this.homeService.getHomes(filters);
+    return this.homeService.getAll(filters);
   }
 
   @Get(':id')
   getHomeById(@Param('id', ParseIntPipe) id: number) {
-    return this.homeService.getHomeById(id);
+    return this.homeService.getSingleById(id);
   }
 
   @Post()
-  createHome() {}
+  createHome(@Body() homeCreatePayload: HomeCreatePayload) {
+    return this.homeService.create(homeCreatePayload);
+  }
 
   @Put(':id')
-  updateHomeById() {}
+  updateHome(
+    @GetUser('id') realtorId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() payload: HomeUpdatePayload,
+  ) {
+    return this.homeService.updateSingleById(realtorId, id, payload);
+  }
 
   @Delete(':id')
   deleteHomeById() {}

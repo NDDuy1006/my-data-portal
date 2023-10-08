@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HomeResponseDto } from './dto/HomeResponseDto';
 import { PropertyType } from '@prisma/client';
+import { HomeCreatePayload } from './payloads/HomeCreatePayload';
+import { HomeUpdatePayload } from './payloads/HomeUpdatePayload';
 
 interface FilterParams {
   city?: string;
@@ -16,7 +18,7 @@ interface FilterParams {
 export class HomeService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async getHomes(filter: FilterParams): Promise<HomeResponseDto[]> {
+  async getAll(filter: FilterParams): Promise<HomeResponseDto[]> {
     const homes = await this.prismaService.home.findMany({
       select: {
         id: true,
@@ -50,7 +52,7 @@ export class HomeService {
     });
   }
 
-  async getHomeById(id: number): Promise<HomeResponseDto> {
+  async getSingleById(id: number): Promise<HomeResponseDto> {
     const home = await this.prismaService.home.findUnique({
       where: {
         id: id,
@@ -68,7 +70,15 @@ export class HomeService {
         createdAt: true,
         updatedAt: true,
         realtorId: true,
-        realtor: true,
+        realtor: {
+          select: {
+            firstname: true,
+            lastname: true,
+            phone: true,
+            userType: true,
+            email: true,
+          },
+        },
         images: true,
       },
     });
@@ -76,5 +86,52 @@ export class HomeService {
     if (!home) throw new NotFoundException();
 
     return home;
+  }
+
+  async create(payload: HomeCreatePayload) {
+    const home = await this.prismaService.home.create({
+      data: {
+        address: payload.address,
+        city: payload.city,
+        numberOfBedrooms: payload.numberOfBedrooms,
+        numberOfBathrooms: payload.numberOfBathrooms,
+        price: payload.price,
+        landSize: payload.landSize,
+        propertyType: payload.propertyType,
+        realtorId: 1,
+      },
+    });
+
+    const homeImages = payload.images.map((image) => {
+      return { ...image, homeId: home.id };
+    });
+
+    await this.prismaService.image.createMany({ data: homeImages });
+
+    return home;
+  }
+
+  async updateSingleById(
+    realtorId: number,
+    id: number,
+    payload: HomeUpdatePayload,
+  ) {
+    const home = await this.prismaService.home.findUnique({
+      where: {
+        id,
+        realtorId,
+      },
+    });
+
+    if (!home) throw new NotFoundException();
+
+    return this.prismaService.home.update({
+      where: {
+        id,
+      },
+      data: {
+        ...payload,
+      },
+    });
   }
 }

@@ -4,10 +4,16 @@ import { UserAuthPayload, UserSigninPayload } from './dtos/UserAuthPayload';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { UserType } from '@prisma/client';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async signup(payload: UserAuthPayload, userType: UserType) {
     const userExists = await this.prismaService.user.findUnique({
@@ -52,7 +58,7 @@ export class AuthService {
 
     if (!isValidPassword) throw new HttpException('Invalid credentials', 400);
 
-    return this.generateJwt(user.email, user.id);
+    return this.signJwtToken(user.id, user.email);
   }
 
   private generateJwt(email: string, id: number) {
@@ -66,6 +72,25 @@ export class AuthService {
         expiresIn: 36000,
       },
     );
+  }
+
+  private async signJwtToken(
+    userId: number,
+    email: string,
+  ): Promise<{ accessToken: string }> {
+    const payload = {
+      sub: userId,
+      email: email,
+    };
+
+    const jwtString = await this.jwtService.signAsync(payload, {
+      expiresIn: '20m',
+      secret: this.configService.get('JSON_TOKEN_KEY'),
+    });
+
+    return {
+      accessToken: jwtString,
+    };
   }
 
   generateProductKey(email: string, userType: UserType) {
