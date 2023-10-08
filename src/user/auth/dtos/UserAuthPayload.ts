@@ -9,7 +9,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export class AuthDto {
+export class UserAuthPayload {
   @IsNotEmpty()
   @IsEmail()
   email: string;
@@ -38,7 +38,7 @@ export class AuthDto {
   productKey?: string;
 }
 
-export class SigninDto {
+export class UserSigninPayload {
   @IsNotEmpty()
   @IsEmail()
   email: string;
@@ -47,7 +47,7 @@ export class SigninDto {
   password: string;
 }
 
-export class GenerateProductKeyDto {
+export class GenerateProductKeyPayload {
   @IsNotEmpty()
   @IsEmail()
   email: string;

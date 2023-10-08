@@ -1,6 +1,6 @@
 import { ConflictException, HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { AuthDto, SigninDto } from './dtos/AuthDto';
+import { UserAuthPayload, UserSigninPayload } from './dtos/UserAuthPayload';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { UserType } from '@prisma/client';
@@ -9,23 +9,23 @@ import { UserType } from '@prisma/client';
 export class AuthService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async signup(authDto: AuthDto, userType: UserType) {
+  async signup(payload: UserAuthPayload, userType: UserType) {
     const userExists = await this.prismaService.user.findUnique({
       where: {
-        email: authDto.email,
+        email: payload.email,
       },
     });
 
     if (userExists) throw new ConflictException('This email already exists');
 
-    const hashedPassword = await bcrypt.hash(authDto.password, 10);
+    const hashedPassword = await bcrypt.hash(payload.password, 10);
 
     const user = await this.prismaService.user.create({
       data: {
-        email: authDto.email,
-        firstname: authDto.firstname,
-        lastname: authDto.lastname,
-        phone: authDto.phone,
+        email: payload.email,
+        firstname: payload.firstname,
+        lastname: payload.lastname,
+        phone: payload.phone,
         password: hashedPassword,
         userType: userType,
       },
@@ -34,10 +34,10 @@ export class AuthService {
     return this.generateJwt(user.email, user.id);
   }
 
-  async signin(signinDto: SigninDto) {
+  async signin(payload: UserSigninPayload) {
     const user = await this.prismaService.user.findUnique({
       where: {
-        email: signinDto.email,
+        email: payload.email,
       },
     });
 
@@ -46,7 +46,7 @@ export class AuthService {
     const hashedPassword = user.password;
 
     const isValidPassword = await bcrypt.compare(
-      signinDto.password,
+      payload.password,
       hashedPassword,
     );
 
