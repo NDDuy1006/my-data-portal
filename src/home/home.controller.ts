@@ -17,9 +17,9 @@ import { HomeCreatePayload } from './payloads/HomeCreatePayload';
 import { HomeUpdatePayload } from './payloads/HomeUpdatePayload';
 import { GetUser } from '../user/auth/decorators/GetUser';
 import { CustomJwtGuard } from '../user/auth/guards/CustomJwtGuard';
+import { ResolvedUser } from 'src/user/auth/dtos/ResolvedUserDto';
 
 @Controller('homes')
-@UseGuards(CustomJwtGuard)
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}
   @Get()
@@ -51,21 +51,32 @@ export class HomeController {
   }
 
   @Post()
-  createHome(@Body() homeCreatePayload: HomeCreatePayload) {
-    return this.homeService.create(homeCreatePayload);
+  @UseGuards(CustomJwtGuard)
+  createHome(
+    @Body() homeCreatePayload: HomeCreatePayload,
+    @GetUser('id') user: ResolvedUser,
+  ) {
+    return this.homeService.create(user, homeCreatePayload);
   }
 
   @Put(':id')
+  @UseGuards(CustomJwtGuard)
   updateHome(
-    @GetUser('id') realtorId: number,
+    @GetUser('id') user: ResolvedUser,
     @Param('id', ParseIntPipe) id: number,
     @Body() payload: HomeUpdatePayload,
   ) {
-    return this.homeService.updateSingleById(realtorId, id, payload);
+    return this.homeService.updateSingleById(user, id, payload);
   }
 
   @Delete(':id')
-  deleteHomeById() {}
+  @UseGuards(CustomJwtGuard)
+  deleteHomeById(
+    @GetUser('id') user: ResolvedUser,
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.homeService.deleteSingleById(user, id);
+  }
 }
 
 /* >>>> NOTE >>>>

@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { HomeResponseDto } from './dto/HomeResponseDto';
-import { PropertyType } from '@prisma/client';
+import { PropertyType, UserType } from '@prisma/client';
 import { HomeCreatePayload } from './payloads/HomeCreatePayload';
 import { HomeUpdatePayload } from './payloads/HomeUpdatePayload';
+import { ResolvedUser } from 'src/user/auth/dtos/ResolvedUserDto';
 
 interface FilterParams {
   city?: string;
@@ -88,7 +93,18 @@ export class HomeService {
     return home;
   }
 
-  async create(payload: HomeCreatePayload) {
+  async create(user: ResolvedUser, payload: HomeCreatePayload) {
+    const realtor = await this.prismaService.user.findUnique({
+      where: {
+        id: user.id,
+      },
+    });
+
+    const isRealtor = realtor.userType === UserType.REALTOR;
+    console.log(isRealtor);
+
+    if (!isRealtor) throw new BadRequestException('Not authorized');
+
     const home = await this.prismaService.home.create({
       data: {
         address: payload.address,
@@ -98,7 +114,7 @@ export class HomeService {
         price: payload.price,
         landSize: payload.landSize,
         propertyType: payload.propertyType,
-        realtorId: 1,
+        realtorId: user.id,
       },
     });
 
@@ -111,11 +127,15 @@ export class HomeService {
     return home;
   }
 
-  async updateSingleById(realtor: any, id: number, payload: HomeUpdatePayload) {
+  async updateSingleById(
+    user: ResolvedUser,
+    id: number,
+    payload: HomeUpdatePayload,
+  ) {
     const home = await this.prismaService.home.findUnique({
       where: {
         id: id,
-        realtorId: realtor.id,
+        realtorId: user.id,
       },
     });
 
@@ -129,5 +149,30 @@ export class HomeService {
         ...payload,
       },
     });
+  }
+
+  async deleteSingleById(user: ResolvedUser, id: number) {
+    const home = await this.prismaService.home.findUnique({
+      where: {
+        id: id,
+        realtorId: user.id,
+      },
+    });
+
+    if (!home) throw new NotFoundException();
+
+    await this.prismaService.image.deleteMany({
+      where: {
+        homeId: id,
+      },
+    });
+
+    await this.prismaService.home.delete({
+      where: {
+        id,
+      },
+    });
+
+    return 'Deleted successfully';
   }
 }
