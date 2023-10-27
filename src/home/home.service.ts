@@ -101,7 +101,6 @@ export class HomeService {
     });
 
     const isRealtor = realtor.userType === UserType.REALTOR;
-    console.log(isRealtor);
 
     if (!isRealtor) throw new BadRequestException('Not authorized');
 
