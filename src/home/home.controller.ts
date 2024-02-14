@@ -3,6 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
   Post,
@@ -23,6 +25,7 @@ import { ResolvedUser } from 'src/user/auth/dtos/ResolvedUserDto';
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}
   @Get()
+  @HttpCode(HttpStatus.OK)
   getHomes(
     @Query('city') city?: string,
     @Query('propertyType') propertyType?: PropertyType,
@@ -46,11 +49,13 @@ export class HomeController {
   }
 
   @Get(':id')
+  @HttpCode(HttpStatus.OK)
   getHomeById(@Param('id', ParseIntPipe) id: number) {
     return this.homeService.getSingleById(id);
   }
 
   @Post()
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(CustomJwtGuard)
   createHome(
     @Body() homeCreatePayload: HomeCreatePayload,
@@ -60,6 +65,7 @@ export class HomeController {
   }
 
   @Put(':id')
+  @HttpCode(HttpStatus.CREATED)
   @UseGuards(CustomJwtGuard)
   updateHome(
     @GetUser('id') user: ResolvedUser,
@@ -70,6 +76,7 @@ export class HomeController {
   }
 
   @Delete(':id')
+  @HttpCode(HttpStatus.GONE)
   @UseGuards(CustomJwtGuard)
   deleteHomeById(
     @GetUser('id') user: ResolvedUser,
@@ -80,7 +87,7 @@ export class HomeController {
 }
 
 /* >>>> NOTE >>>>
-  `...(city && { city })`: if city is not undefined, desctructure it into the filter object
+  `...(city && { city })`: if city is not undefined, destructure it into the filter object
 
   same thing happened with propertyType
 */

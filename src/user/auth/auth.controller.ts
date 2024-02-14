@@ -1,6 +1,8 @@
 import {
   Body,
   Controller,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseEnumPipe,
   Post,
@@ -19,6 +21,7 @@ import * as bcrypt from 'bcryptjs';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
   @Post('/signup/:userType')
+  @HttpCode(HttpStatus.CREATED)
   async signup(
     @Body() payload: UserAuthPayload,
     @Param('userType', new ParseEnumPipe(UserType)) userType: UserType,
@@ -44,11 +47,13 @@ export class AuthController {
   }
 
   @Post('/signin')
+  @HttpCode(HttpStatus.OK)
   signin(@Body() payload: UserSigninPayload) {
     return this.authService.signin(payload);
   }
 
   @Post('/key')
+  @HttpCode(HttpStatus.CREATED)
   generateProductKey(@Body() payload: GenerateProductKeyPayload) {
     return this.authService.generateProductKey(payload.email, payload.userType);
   }

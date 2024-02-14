@@ -7,7 +7,7 @@ import { UserType } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
-interface Tokens {
+export interface Tokens {
   accessToken: string;
   refreshToken: string;
 }
@@ -79,10 +79,7 @@ export class AuthService {
     );
   }
 
-  private async signJwtToken(
-    userId: number,
-    email: string,
-  ): Promise<{ accessToken: string }> {
+  private async signJwtToken(userId: number, email: string): Promise<Tokens> {
     const payload = {
       sub: userId,
       email: email,
@@ -93,19 +90,20 @@ export class AuthService {
       secret: this.configService.get('JSON_TOKEN_KEY'),
     });
 
-    const [accessToken1, refreshToken1] = await Promise.all([
+    const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         expiresIn: '20m',
         secret: this.configService.get('JSON_TOKEN_KEY'),
       }),
       this.jwtService.signAsync(payload, {
-        expiresIn: '20m',
+        expiresIn: '50m',
         secret: this.configService.get('JSON_TOKEN_KEY'),
       }),
     ]);
 
     return {
-      accessToken: jwtString,
+      accessToken,
+      refreshToken,
     };
   }
 
