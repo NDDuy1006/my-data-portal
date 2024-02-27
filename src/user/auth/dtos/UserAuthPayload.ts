@@ -13,29 +13,47 @@ import { ApiProperty } from '@nestjs/swagger';
 export class UserAuthPayload {
   @IsNotEmpty()
   @IsEmail()
-  @ApiProperty({ type: 'string' })
+  @ApiProperty({
+    type: 'string',
+    example: 'example@email.com',
+    description: 'Email of user',
+  })
   email: string;
 
   @IsNotEmpty()
   @MinLength(5)
-  @ApiProperty({ type: 'string' })
+  @ApiProperty({
+    type: 'string',
+    example: 'password',
+  })
   password: string;
 
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ type: 'string' })
+  @ApiProperty({
+    type: 'string',
+    example: 'Sum Ting',
+    description: 'Firstname of user',
+  })
   firstname: string;
 
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ type: 'string' })
+  @ApiProperty({
+    type: 'string',
+    example: 'Wong',
+    description: 'Lastname of user',
+  })
   lastname: string;
 
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ type: 'string' })
-  @Matches(/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/, {
-    message: 'Phone must be valid',
+  @ApiProperty({
+    type: 'string',
+    example: '',
+  })
+  @Matches(/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/, {
+    message: 'Phone must be a valid phone number',
   })
   phone: string;
 
