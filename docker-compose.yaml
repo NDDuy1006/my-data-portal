@@ -11,5 +11,21 @@ services:
       POSTGRES_DB: testdb
     networks:
       - nestjs-network
+
+  realtor:
+    image: realtor:latest
+    depends_on:
+      - dev-database
+    container_name: realtor
+    env_file: .env
+    ports:
+      - 8000:8000
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - PRODUCT_KEY_SECRET=${PRODUCT_KEY_SECRET}
+      - JSON_TOKEN_KEY=${JSON_TOKEN_KEY}
+    networks:
+      - nestjs-network
+
 networks:
-  nestjs-network: #run docker: docker compose up -d
+  nestjs-network:
