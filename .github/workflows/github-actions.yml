@@ -16,3 +16,15 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
+      - name: Executing remote SSH commands using password
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AZURE_HOST }}
+          username: ${{ secrets.AZURE_USERNAME }}
+          password: ${{ secrets.AZURE_PASSWORD }}
+          port: ${{ secrets.AZURE_PORT }}
+          script: |
+            whoami
+            uname -a
+            uptime
+            ls -la
