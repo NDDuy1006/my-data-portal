@@ -35,7 +35,7 @@ export class UserAuthPayload {
   @IsString()
   @ApiProperty({ type: 'string' })
   @Matches(/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/, {
-    message: 'Phone must be a valid phone number',
+    message: 'Phone must be valid',
   })
   phone: string;
 
