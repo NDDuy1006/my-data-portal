@@ -23,4 +23,4 @@ jobs:
           password: ${{ secrets.AZURE_PASSWORD }}
           port: ${{ secrets.AZURE_PORT }}
           script: |
-            ./deploy
+            ./deploy.sh
