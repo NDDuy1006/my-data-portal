@@ -8,14 +8,14 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1234
-      POSTGRES_DB: testdb
+      POSTGRES_DB: dev-database
     networks:
       - nestjs-network
 
   realtor:
-    image: realtor:latest
     depends_on:
       - dev-database
+    build: .
     container_name: realtor
     env_file: .env
     ports:
