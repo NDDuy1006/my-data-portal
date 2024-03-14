@@ -13,22 +13,37 @@ import { ApiProperty } from '@nestjs/swagger';
 export class UserAuthPayload {
   @IsNotEmpty()
   @IsEmail()
-  @ApiProperty({ type: 'string' })
+  @ApiProperty({
+    type: 'string',
+    example: 'example@email.com',
+    description: 'Email of user',
+  })
   email: string;
 
   @IsNotEmpty()
   @MinLength(5)
-  @ApiProperty({ type: 'string' })
+  @ApiProperty({
+    type: 'string',
+    example: 'password',
+  })
   password: string;
 
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ type: 'string' })
+  @ApiProperty({
+    type: 'string',
+    example: 'Sum Ting',
+    description: 'Firstname of user',
+  })
   firstname: string;
 
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ type: 'string' })
+  @ApiProperty({
+    type: 'string',
+    example: 'Wong',
+    description: 'Lastname of user',
+  })
   lastname: string;
 
   @IsNotEmpty()
