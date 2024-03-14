@@ -1,21 +1,26 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   ParseEnumPipe,
   Post,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   UserAuthPayload,
   GenerateProductKeyPayload,
   UserSigninPayload,
+  UserGoogleSigninPayload,
 } from './dtos/UserAuthPayload';
-import { UserType } from '@prisma/client';
+import { User, UserType } from '@prisma/client';
 import * as bcrypt from 'bcryptjs';
+import { CustomJwtGuard } from './guards/CustomJwtGuard';
+import { GetUser } from './decorators/GetUser';
 
 @Controller('auth')
 export class AuthController {
@@ -50,6 +55,20 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   signin(@Body() payload: UserSigninPayload) {
     return this.authService.signin(payload);
+  }
+
+  @Post('/sigin/google')
+  @HttpCode(HttpStatus.OK)
+  googleSignin(@Body() payload: UserGoogleSigninPayload) {
+    return this.authService.googleSignin(payload);
+  }
+
+  @UseGuards(CustomJwtGuard)
+  @Get('/refresh')
+  refreshToken(@GetUser() user: User) {
+    const userId = user.id;
+    const email = user.email;
+    return this.authService.renewTokens(userId, email);
   }
 
   @Post('/key')

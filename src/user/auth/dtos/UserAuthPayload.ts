@@ -34,7 +34,12 @@ export class UserAuthPayload {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({ type: 'string' })
-  @Matches(/\(?([0-9]{3})\)?([ .-]?)([0-9]{3})\2([0-9]{4})/, {
+  username: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({ type: 'string' })
+  @Matches(/^[+]*[(]{0,1}[0-9]{1,4}[)]{0,1}[-\s\./0-9]*$/, {
     message: 'Phone must be a valid phone number',
   })
   phone: string;
@@ -54,6 +59,28 @@ export class UserSigninPayload {
   @IsNotEmpty()
   @ApiProperty()
   password: string;
+}
+
+export class UserGoogleSigninPayload {
+  @IsNotEmpty()
+  @IsEmail()
+  @ApiProperty()
+  email: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({ type: 'string' })
+  firstname: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({ type: 'string' })
+  avatarUrl?: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @ApiProperty({ type: 'string' })
+  lastname: string;
 }
 
 export class GenerateProductKeyPayload {
