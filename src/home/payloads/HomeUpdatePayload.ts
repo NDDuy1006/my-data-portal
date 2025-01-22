@@ -1,4 +1,5 @@
 import { PropertyType } from '@prisma/client';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsString,
   IsNotEmpty,
@@ -11,35 +12,40 @@ import {
 export class HomeUpdatePayload {
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
+  @ApiProperty()
   address?: string;
 
   @IsString()
   @IsNotEmpty()
+  @ApiProperty()
   city?: string;
 
   @IsOptional()
   @IsNumber()
   @IsPositive()
+  @ApiProperty()
   numberOfBedrooms?: number;
 
   @IsOptional()
   @IsNumber()
   @IsPositive()
+  @ApiProperty()
   numberOfBathrooms?: number;
 
   @IsOptional()
   @IsNumber()
   @IsPositive()
+  @ApiProperty()
   price?: number;
 
   @IsOptional()
   @IsNumber()
   @IsPositive()
+  @ApiProperty()
   landSize?: number;
 
   @IsOptional()
   @IsEnum(PropertyType)
-  @IsNotEmpty()
+  @ApiProperty()
   propertyType?: PropertyType;
 }

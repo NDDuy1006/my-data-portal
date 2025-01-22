@@ -13,6 +13,7 @@ import { User } from '@prisma/client';
 import { UserService } from './user.service';
 import { ResolvedUser } from './auth/dtos/ResolvedUserDto';
 import { UserUpdatePayload } from './auth/dtos/UserUpdatePayload';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('users')
 export class UserController {
@@ -20,12 +21,18 @@ export class UserController {
 
   @UseGuards(CustomJwtGuard)
   @Get('me')
+  @ApiOperation({
+    summary: 'Get current user',
+  })
   getMe(@GetUser() user: User) {
     return user;
   }
 
   @UseGuards(CustomJwtGuard)
   @Put(':id')
+  @ApiOperation({
+    summary: 'Update current user',
+  })
   updateUser(
     @GetUser('id') user: ResolvedUser,
     @Param('id', ParseIntPipe) id: number,

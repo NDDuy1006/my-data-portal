@@ -20,12 +20,16 @@ import { HomeUpdatePayload } from './payloads/HomeUpdatePayload';
 import { GetUser } from '../user/auth/decorators/GetUser';
 import { CustomJwtGuard } from '../user/auth/guards/CustomJwtGuard';
 import { ResolvedUser } from 'src/user/auth/dtos/ResolvedUserDto';
+import { ApiOperation } from '@nestjs/swagger';
 
 @Controller('homes')
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}
   @Get()
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Retrieve homes by filters',
+  })
   getHomes(
     @Query('city') city?: string,
     @Query('propertyType') propertyType?: PropertyType,
@@ -50,6 +54,9 @@ export class HomeController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Retrieve single home by ID',
+  })
   getHomeById(@Param('id', ParseIntPipe) id: number) {
     return this.homeService.getSingleById(id);
   }
@@ -57,6 +64,9 @@ export class HomeController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(CustomJwtGuard)
+  @ApiOperation({
+    summary: 'Create a home',
+  })
   createHome(
     @Body() homeCreatePayload: HomeCreatePayload,
     @GetUser('id') user: ResolvedUser,
@@ -67,6 +77,9 @@ export class HomeController {
   @Put(':id')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(CustomJwtGuard)
+  @ApiOperation({
+    summary: 'Update a home by ID',
+  })
   updateHome(
     @GetUser('id') user: ResolvedUser,
     @Param('id', ParseIntPipe) id: number,
@@ -78,6 +91,9 @@ export class HomeController {
   @Delete(':id')
   @HttpCode(HttpStatus.GONE)
   @UseGuards(CustomJwtGuard)
+  @ApiOperation({
+    summary: 'Delete a home by ID',
+  })
   deleteHomeById(
     @GetUser('id') user: ResolvedUser,
     @Param('id', ParseIntPipe) id: number,
