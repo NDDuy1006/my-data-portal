@@ -20,7 +20,8 @@ import { HomeUpdatePayload } from './payloads/HomeUpdatePayload';
 import { GetUser } from '../user/auth/decorators/GetUser';
 import { CustomJwtGuard } from '../user/auth/guards/CustomJwtGuard';
 import { ResolvedUser } from 'src/user/auth/dtos/ResolvedUserDto';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiParam } from '@nestjs/swagger';
+import { SearchQueryPayload } from './payloads/SearchQueryPayload';
 
 @Controller('homes')
 export class HomeController {
@@ -30,19 +31,16 @@ export class HomeController {
   @ApiOperation({
     summary: 'Retrieve homes by filters',
   })
-  getHomes(
-    @Query('city') city?: string,
-    @Query('propertyType') propertyType?: PropertyType,
-    @Query('minPrice') minPrice?: string,
-    @Query('maxPrice') maxPrice?: string,
-  ): Promise<HomeResponseDto[]> {
+  getHomes(@Query() query?: SearchQueryPayload): Promise<HomeResponseDto[]> {
     const price =
-      minPrice || maxPrice
+      query.minPrice || query.maxPrice
         ? {
-            ...(minPrice && { gte: parseFloat(minPrice) }),
-            ...(maxPrice && { lte: parseFloat(maxPrice) }),
+            ...(query.minPrice && { gte: parseFloat(query.minPrice) }),
+            ...(query.maxPrice && { lte: parseFloat(query.maxPrice) }),
           }
         : undefined;
+    const city = query.city;
+    const propertyType = query.propertyType;
 
     const filters = {
       ...(city && { city }),
