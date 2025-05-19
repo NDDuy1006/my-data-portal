@@ -20,25 +20,27 @@ import { HomeUpdatePayload } from './payloads/HomeUpdatePayload';
 import { GetUser } from '../user/auth/decorators/GetUser';
 import { CustomJwtGuard } from '../user/auth/guards/CustomJwtGuard';
 import { ResolvedUser } from 'src/user/auth/dtos/ResolvedUserDto';
+import { ApiOperation, ApiParam } from '@nestjs/swagger';
+import { SearchQueryPayload } from './payloads/SearchQueryPayload';
 
 @Controller('homes')
 export class HomeController {
   constructor(private readonly homeService: HomeService) {}
   @Get()
   @HttpCode(HttpStatus.OK)
-  getHomes(
-    @Query('city') city?: string,
-    @Query('propertyType') propertyType?: PropertyType,
-    @Query('minPrice') minPrice?: string,
-    @Query('maxPrice') maxPrice?: string,
-  ): Promise<HomeResponseDto[]> {
+  @ApiOperation({
+    summary: 'Retrieve homes by filters',
+  })
+  getHomes(@Query() query?: SearchQueryPayload): Promise<HomeResponseDto[]> {
     const price =
-      minPrice || maxPrice
+      query.minPrice || query.maxPrice
         ? {
-            ...(minPrice && { gte: parseFloat(minPrice) }),
-            ...(maxPrice && { lte: parseFloat(maxPrice) }),
+            ...(query.minPrice && { gte: parseFloat(query.minPrice) }),
+            ...(query.maxPrice && { lte: parseFloat(query.maxPrice) }),
           }
         : undefined;
+    const city = query.city;
+    const propertyType = query.propertyType;
 
     const filters = {
       ...(city && { city }),
@@ -50,6 +52,9 @@ export class HomeController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Retrieve single home by ID',
+  })
   getHomeById(@Param('id', ParseIntPipe) id: number) {
     return this.homeService.getSingleById(id);
   }
@@ -57,6 +62,9 @@ export class HomeController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(CustomJwtGuard)
+  @ApiOperation({
+    summary: 'Create a home',
+  })
   createHome(
     @Body() homeCreatePayload: HomeCreatePayload,
     @GetUser('id') user: ResolvedUser,
@@ -67,6 +75,9 @@ export class HomeController {
   @Put(':id')
   @HttpCode(HttpStatus.CREATED)
   @UseGuards(CustomJwtGuard)
+  @ApiOperation({
+    summary: 'Update a home by ID',
+  })
   updateHome(
     @GetUser('id') user: ResolvedUser,
     @Param('id', ParseIntPipe) id: number,
@@ -78,6 +89,9 @@ export class HomeController {
   @Delete(':id')
   @HttpCode(HttpStatus.GONE)
   @UseGuards(CustomJwtGuard)
+  @ApiOperation({
+    summary: 'Delete a home by ID',
+  })
   deleteHomeById(
     @GetUser('id') user: ResolvedUser,
     @Param('id', ParseIntPipe) id: number,

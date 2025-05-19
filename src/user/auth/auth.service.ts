@@ -15,7 +15,6 @@ import * as jwt from 'jsonwebtoken';
 import { UserType } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as argon2 from 'argon2';
 
 export interface Tokens {
   accessToken: string;
